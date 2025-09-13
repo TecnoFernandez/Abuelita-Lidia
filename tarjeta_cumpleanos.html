@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tarjeta de Feliz Cumpleaños</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0ea5a9;--accent:#f472b6}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071428 0%, #0b2b3a 100%);padding:24px}
+    .stage{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:center}
+    .card{position:relative;background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border-radius:20px;padding:28px;box-shadow:0 10px 30px rgba(2,6,23,0.6);overflow:hidden}
+    .hero{display:flex;flex-direction:column;gap:12px}
+    h1{margin:0;font-size:2.2rem;color:var(--card);letter-spacing:0.4px}
+    p.lead{margin:0;color:#e6eef0;font-size:1.05rem}
+    .name{font-weight:700;font-size:1.6rem;color:#fff}
+    .balloons{display:flex;gap:10px;margin-top:8px}
+    .balloon{width:72px;height:100px;border-radius:50% 50% 45% 45%;background:var(--accent);position:relative;transform-origin:center bottom;animation:float 4s ease-in-out infinite}
+    .balloon:after{content:'';position:absolute;left:50%;bottom:-22px;width:2px;height:22px;background:linear-gradient(#ddd,#999);transform:translateX(-50%)}
+    .balloon:nth-child(2){background:#60a5fa;animation-delay:0.2s}
+    .balloon:nth-child(3){background:#f59e0b;animation-delay:0.4s}
+    @keyframes float{0%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}100%{transform:translateY(0) rotate(-4deg)}}
+    .controls{display:flex;flex-direction:column;gap:10px}
+    label{font-size:0.9rem;color:#cfe8ea}
+    input[type='text'], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff;font-size:0.95rem}
+    textarea{min-height:96px;resize:vertical}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn-primary{background:var(--card);color:#052026}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#bfecef}
+    .small{font-size:0.85rem;color:#bfecef}
+    #confetti{position:absolute;inset:0;pointer-events:none}
+    @media (max-width:880px){.stage{grid-template-columns:1fr;max-width:680px}.card{order:2}.controls{order:1}}
+    .sparkle{display:inline-block;position:relative}
+    .sparkle:after{content:'';position:absolute;left:-10%;top:-40%;width:40px;height:40px;background:radial-gradient(circle,#fff7 0%, #fff0 40%);opacity:0.18;transform:rotate(20deg);animation:shimmer 2.6s linear infinite}
+    @keyframes shimmer{0%{transform:translateX(-10px) rotate(20deg);opacity:0.14}50%{transform:translateX(8px) rotate(40deg);opacity:0.28}100%{transform:translateX(-10px) rotate(20deg);opacity:0.14}}
+    input[type='text']:focus, textarea:focus{outline:none;border:1px solid var(--card);box-shadow:0 0 4px var(--card);}
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="card" id="card">
+      <canvas id="confetti"></canvas>
+      <div class="hero">
+        <h1>🎉 <span class="sparkle">¡Feliz Cumpleaños!</span></h1>
+        <p class="lead">Para: <span class="name" id="recipient">Abuelita Lidia</span></p>
+        <div class="balloons">
+          <div class="balloon"></div>
+          <div class="balloon"></div>
+          <div class="balloon"></div>
+        </div>
+        <p style="margin-top:14px;color:#dff7f7" id="message">Que este día hayas tenido momentos de alegría, risas y momentos inolvidables. ¡Te quiero mucho! De Thelma y Adela Fernández</p>
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="playBtn">Reproducir canción</button>
+          <button class="btn btn-ghost" id="confettiBtn">Lanzar confeti</button>
+          <button class="btn btn-ghost" id="printBtn">Imprimir / Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card controls">
+      <label>Nombre del festejado</label>
+      <input type="text" id="nameInput" placeholder="Ej: Mamá, Juan, Ana" value="Abuelita Lidia" />
+      <label>Mensaje personalizado</label>
+      <textarea id="msgInput">Que este día hayas tenido momentos de alegría, risas y momentos inolvidables. ¡Te quiero mucho! De Thelma y Adela Fernández</textarea>
+      <label class="small">Ajustes</label>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" id="applyBtn">Aplicar</button>
+        <button class="btn btn-ghost" id="resetBtn">Restablecer</button>
+      </div>
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
+      <p class="small">Consejo: haz clic en "Lanzar confeti" y luego en "Reproducir canción" para un efecto especial. Puedes imprimir con "Imprimir / Guardar".</p>
+    </div>
+  </div>
+
+  <audio id="song" preload="auto">
+    <source src="cumpleanos.mp3" type="audio/mpeg">
+    tu navegador no soporta el elemento de audio 
+  </audio>
+
+  <script>
+    const recipientEl = document.getElementById('recipient');
+    const messageEl = document.getElementById('message');
+    const nameInput = document.getElementById('nameInput');
+    const msgInput = document.getElementById('msgInput');
+    const applyBtn = document.getElementById('applyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const confettiBtn = document.getElementById('confettiBtn');
+    const printBtn = document.getElementById('printBtn');
+    const songEl = document.getElementById('song');
+    const playBtn = document.getElementById('playBtn');
+    let isPlaying = false;
+
+    // Reproducir / pausar audio
+    playBtn.addEventListener('click', () => {
+      if (!isPlaying) {
+        songEl.play().then(() => {
+          isPlaying = true;
+          playBtn.textContent = 'Detener canción';
+        }).catch(err => {
+          alert('No se pudo reproducir el audio. Toca el botón de reproducir otra vez.');
+          console.log(err);
+        });
+      } else {
+        songEl.pause();
+        songEl.currentTime = 0;
+        isPlaying = false;
+        playBtn.textContent = 'Reproducir canción';
+      }
+    });
+
+    // -----------------------------
+    // Confetti
+    // -----------------------------
+    const confettiCanvas = document.getElementById('confetti');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiPieces = [];
+
+    function resizeCanvas(){
+      confettiCanvas.width = confettiCanvas.offsetWidth;
+      confettiCanvas.height = confettiCanvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function rand(min,max){ return Math.random()*(max-min)+min }
+    function createConfetti(x,y){
+      for(let i=0;i<40;i++){
+        confettiPieces.push({
+          x: x + rand(-20,20),
+          y: y + rand(-20,20),
+          vx: rand(-4,4),
+          vy: rand(-6,-1),
+          r: rand(6,10),
+          color: ['#ff7ab6','#60a5fa','#f59e0b','#34d399'][Math.floor(rand(0,4))],
+          rot: rand(0,360),
+          rotSpeed: rand(-6,6),
+          ttl: 120 + Math.floor(rand(0,60))
+        });
+      }
+    }
+
+    function step(){
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      for(let i=confettiPieces.length-1;i>=0;i--){
+        const p = confettiPieces[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.rot += p.rotSpeed; p.ttl--;
+        ctx.save();
+        ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.4);
+        ctx.restore();
+        if(p.y>confettiCanvas.height+40 || p.ttl<=0) confettiPieces.splice(i,1);
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    let confettiInterval = null;
+
+    confettiBtn.addEventListener('click', () => {
+    // Si ya está lanzando, detenerlo
+    if (confettiInterval) {
+        clearInterval(confettiInterval);
+        confettiInterval = null;
+        confettiBtn.textContent = 'Lanzar confeti';
+    } else {
+        // Lanzar confeti cada 200 ms desde posiciones aleatorias
+        confettiInterval = setInterval(() => {
+            const x = rand(50, confettiCanvas.width - 50);
+            const y = -10; // empezamos desde arriba
+            createConfetti(x, y);
+        }, 200);
+        confettiBtn.textContent = 'Detener confeti';
+    }
+    });
+
+
+    // Aplicar cambios de inputs
+    function applyChanges(){
+      recipientEl.textContent = nameInput.value || '[Nombre]';
+      messageEl.textContent = msgInput.value || '';
+    }
+    applyBtn.addEventListener('click', applyChanges);
+    resetBtn.addEventListener('click', ()=>{
+      nameInput.value = 'Mamá';
+      msgInput.value = 'Que este día hayas tenido momentos de alegría, risas y momentos inolvidables. ¡Te quiero mucho! De Thelma y Adela Fernández';
+      applyChanges();
+    });
+    applyChanges();
+
+    // Imprimir / guardar
+    printBtn.addEventListener('click', ()=> window.print());
+
+    // Animación inicial de confetti
+    window.addEventListener('load', ()=>{
+      createConfetti(rand(100, confettiCanvas.width-100), confettiCanvas.height / 4);
+    });
+
+    // Enter en inputs
+    nameInput.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); applyChanges(); } });
+    msgInput.addEventListener('keydown', e => { if(e.ctrlKey && e.key==='Enter'){ applyChanges(); } });
+  </script>
+</body>
+</html>
