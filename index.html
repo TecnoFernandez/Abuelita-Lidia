@@ -8,9 +8,9 @@
     :root{--bg:#0f172a;--card:#0ea5a9;--accent:#f472b6}
     html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
     body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071428 0%, #0b2b3a 100%);padding:24px}
-    .stage{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:center}
+    .stage{width:100%;max-width:900px;align-items:center}
     .card{position:relative;background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border-radius:20px;padding:28px;box-shadow:0 10px 30px rgba(2,6,23,0.6);overflow:hidden}
-    .hero{display:flex;flex-direction:column;gap:12px}
+    .hero{display:flex;flex-direction:column;gap:50px;align-items: center}
     h1{margin:0;font-size:2.2rem;color:var(--card);letter-spacing:0.4px}
     p.lead{margin:0;color:#e6eef0;font-size:1.05rem}
     .name{font-weight:700;font-size:1.6rem;color:#fff}
@@ -57,19 +57,6 @@
       </div>
     </div>
 
-    <div class="card controls">
-      <label>Nombre del festejado</label>
-      <input type="text" id="nameInput" placeholder="Ej: Mamá, Juan, Ana" value="Abuelita Lidia" />
-      <label>Mensaje personalizado</label>
-      <textarea id="msgInput">Que este día hayas tenido momentos de alegría, risas y momentos inolvidables. ¡Te quiero mucho! De Thelma y Adela Fernández</textarea>
-      <label class="small">Ajustes</label>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" id="applyBtn">Aplicar</button>
-        <button class="btn btn-ghost" id="resetBtn">Restablecer</button>
-      </div>
-      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
-      <p class="small">Consejo: haz clic en "Lanzar confeti" y luego en "Reproducir canción" para un efecto especial. Puedes imprimir con "Imprimir / Guardar".</p>
-    </div>
   </div>
 
   <audio id="song" preload="auto">
